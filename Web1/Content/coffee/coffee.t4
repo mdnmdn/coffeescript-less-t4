@@ -9,7 +9,7 @@
 
 
 var currentDirectory = Path.GetDirectoryName(Host.TemplateFile);
-    var filespec =  "*.coffee" ;
+var filespec =  "*.coffee" ;
 var cssFiles = Directory.GetFiles(currentDirectory, filespec);
 
 var engine = new CoffeeSharp.CoffeeScriptEngine();
@@ -28,7 +28,6 @@ foreach(string file in cssFiles)
 <#@ assembly name="Microsoft.VisualStudio.Shell.Interop.8.0" #>
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="EnvDTE80" #>
-<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
 <#@ import namespace="Microsoft.VisualStudio.Shell.Interop" #>
 <#@ import namespace="EnvDTE" #>
 <#@ import namespace="EnvDTE80" #>

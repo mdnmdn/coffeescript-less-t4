@@ -34,11 +34,9 @@ foreach(string cssFile in cssFiles)
 <#@ assembly name="Microsoft.VisualStudio.Shell.Interop.8.0" #>
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="EnvDTE80" #>
-<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
 <#@ import namespace="Microsoft.VisualStudio.Shell.Interop" #>
 <#@ import namespace="EnvDTE" #>
 <#@ import namespace="EnvDTE80" #>
-
 <#+
 
 /*
