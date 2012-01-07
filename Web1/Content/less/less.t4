@@ -5,28 +5,58 @@
 <#@ import namespace="dotless.Core" #>
 <#@ import namespace="dotless.Core.configuration" #>
 <#@ import namespace="System.IO" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Reflection" #>
-<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
 <#
 
-
-var _useCssExtension = false;
 var _minify = false;
 
+var inputs = new String[] {
+// write here the list of file to process
+    "*.less","*.css"
+};
+
+var excludes = new String[] {
+// write here the list of file to process
+    "less1.css"
+};
+
+List<string> fileRegistry = new List<string>();
+
 var currentDirectory = Path.GetDirectoryName(Host.TemplateFile);
-var filespec = _useCssExtension ? "*.less.css" : "*.less";
-var cssFiles = Directory.GetFiles(currentDirectory, filespec);
+
+// inclusions
+foreach(var input in inputs){
+    var files = Directory.GetFiles(currentDirectory, input);
+        
+    foreach(var file in files){
+        if (!fileRegistry.Contains(file)){
+            fileRegistry.Add(file);
+        } 
+    }
+}
+
+// exclusion 
+foreach(var input in excludes){
+    var files = Directory.GetFiles(currentDirectory, input);
+    foreach(var file in files){
+        if (fileRegistry.Contains(file)){
+            fileRegistry.Remove(file);
+        } 
+    }
+}
 
 var configuration = new DotlessConfiguration();
 configuration.MinifyOutput = _minify;
-foreach(string cssFile in cssFiles) 
+foreach(string file in fileRegistry) 
 {
-        Write("/* " + Path.GetFileName(cssFile) + "  */\n");
-        string css = Less.Parse(File.ReadAllText(cssFile), configuration);
-        Write(css);
+        Write("/* " + Path.GetFileName(file) + "  */\n");
+        var contents = File.ReadAllText(file);
+        if (file.Contains(".less")) contents = Less.Parse(contents,configuration);
+        Write(contents);
         Write("\n");
 }
+
+
 
 //MarkDirty();
 #>

@@ -3,21 +3,61 @@
 <#@ assembly name="$(SolutionDir)libs\CoffeeSharp.dll" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="CoffeeSharp" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
 <#
 
+//var minify= true;
 
+var inputs = new String[] {
+// write here the list of file to process
+    "one.js",
+    "two.coffee",
+    "two.js",
+    "*.coffee",
+    "three.js",
+    "*.js"
+};
+
+var excludes = new String[] {
+// write here the list of file to process
+    "coffee1.js"
+};
+
+List<string> fileRegistry = new List<string>(); 
 
 var currentDirectory = Path.GetDirectoryName(Host.TemplateFile);
-var filespec =  "*.coffee" ;
-var cssFiles = Directory.GetFiles(currentDirectory, filespec);
+
+// inclusions
+foreach(var input in inputs){
+    var files = Directory.GetFiles(currentDirectory, input);
+        
+    foreach(var file in files){
+        if (!fileRegistry.Contains(file)){
+            fileRegistry.Add(file);
+        } 
+    }
+}
+
+// exclusion 
+foreach(var input in excludes){
+    var files = Directory.GetFiles(currentDirectory, input);
+    foreach(var file in files){
+        if (fileRegistry.Contains(file)){
+            fileRegistry.Remove(file);
+        } 
+    }
+}
+
 
 var engine = new CoffeeSharp.CoffeeScriptEngine();
-foreach(string file in cssFiles) 
+foreach(string file in fileRegistry) 
 {
         Write("/* " + Path.GetFileName(file) + "  */\n");
-        string js = engine.Compile(File.ReadAllText(file));
-        Write(js);
+        var contents = File.ReadAllText(file);
+        if (file.EndsWith("coffee")) contents = engine.Compile(contents);
+        Write(contents);
         Write("\n");
 }
 

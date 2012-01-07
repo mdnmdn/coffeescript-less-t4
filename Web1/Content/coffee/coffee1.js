@@ -1,4 +1,14 @@
-﻿/* js1.coffee  */
+﻿/* one.js  */
+var one = 'one.js';
+/* two.coffee  */
+(function() {
+  var two;
+  two = 'two.coffee';
+}).call(this);
+
+/* two.js  */
+var two = 'two.js';
+/* js1.coffee  */
 (function() {
   alert('ad');
   alert('ad');
@@ -10,5 +20,7 @@
   alert('js2asas');
 }).call(this);
 
+/* Three.js  */
+var three = 'three.js';
 
 
