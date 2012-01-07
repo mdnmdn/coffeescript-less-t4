@@ -15,17 +15,14 @@ var minify= true;
 
 var inputs = new String[] {
 // write here the list of file to process
-    "one.js",
-    "two.coffee",
-    "two.js",
+    "jquery-1.*.js",
     "*.coffee",
-    "three.js",
     "*.js"
 };
 
 var excludes = new String[] {
 // write here the list of file to process
-    "coffee.js"
+    "*.min.js","*.debug.js","*vsdoc*","style.js"
 };
 
 List<string> fileRegistry = new List<string>(); 
@@ -78,7 +75,6 @@ if(minify){
 Write("/*\n");
 foreach(string file in fileRegistry) Write(Path.GetFileName(file) + "\n");
 Write("*/\n");
-
 Write(js);
 //MarkDirty();
 

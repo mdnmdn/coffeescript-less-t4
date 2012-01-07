@@ -74,6 +74,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>coffee.t4</DependentUpon>
     </Content>
+    <Content Include="Content\coffee\Three.js" />
+    <Content Include="Content\coffee\two.js" />
+    <Content Include="Content\less\two.css" />
     <Content Include="Content\less\less1.css">
       <DependentUpon>less.t4</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -108,6 +111,11 @@
     <Content Include="Content\themes\base\jquery.ui.theme.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Scripts\style.js">
+      <DependentUpon>style.t4</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Content>
     <Content Include="Scripts\jquery-1.5.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.5.1.js" />
     <Content Include="Scripts\jquery-1.5.1.min.js" />
@@ -150,17 +158,24 @@
     <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Content\coffee\coffee.t4">
+    <None Include="Content\coffee\coffee.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>coffee1.js</LastGenOutput>
-    </Compile>
+      <LastGenOutput>coffee.js</LastGenOutput>
+    </None>
+    <Content Include="Content\coffee\one.js" />
+    <None Include="Content\coffee\two.coffee" />
     <None Include="Content\coffee\js2.coffee" />
     <None Include="Content\coffee\js1.coffee" />
+    <Content Include="Content\less\one.css" />
     <None Include="Content\less\nested.less" />
     <None Include="Content\less\mixin.less" />
     <None Include="Content\less\less.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>less1.css</LastGenOutput>
+      <LastGenOutput>less.css</LastGenOutput>
+    </None>
+    <None Include="Scripts\style.t4">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>style.js</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
