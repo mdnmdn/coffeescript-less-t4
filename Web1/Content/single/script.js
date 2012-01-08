@@ -1,5 +1,3 @@
-
-
 /*
 one.js
 js1.coffee

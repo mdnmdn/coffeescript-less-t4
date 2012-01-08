@@ -3,8 +3,6 @@
 <#@ assembly name="$(SolutionDir)libs\CoffeeSharp.dll" #>
 <#@ assembly name="$(SolutionDir)libs\dotless.core.dll" #>
 <#@ assembly name="$(SolutionDir)libs\AjaxMin.dll" #>
-
-
 <#
 
 
@@ -19,7 +17,6 @@ DeleteOldOutputs();
 
 
 #>
-
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Xml" #>
 <#@ assembly name="EnvDTE" #>
@@ -44,7 +41,6 @@ DeleteOldOutputs();
 <#@ import namespace="Microsoft.VisualStudio.Shell" #>
 <#@ import namespace="Microsoft.VisualStudio.Shell.Interop" #>
 <#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
-
 <#+
 
 
