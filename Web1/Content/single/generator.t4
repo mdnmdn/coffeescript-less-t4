@@ -1,0 +1,317 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".log" #>
+<#@ assembly name="$(SolutionDir)libs\CoffeeSharp.dll" #>
+<#@ assembly name="$(SolutionDir)libs\dotless.core.dll" #>
+<#@ assembly name="$(SolutionDir)libs\AjaxMin.dll" #>
+
+
+<#
+
+
+Process("script.js",false,"*.js","*.coffee");
+//Process("script.min.js",true,"*.js","*.coffee");
+Process("style.css",false,"*.css","*.less");
+//Process("style.min.css",true,"*.css","*.less");
+
+
+//MarkDirty();
+DeleteOldOutputs();
+
+
+#>
+
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="EnvDTE" #>
+<#@ assembly name="Microsoft.VisualStudio.OLE.Interop" #>
+<#@ assembly name="Microsoft.VisualStudio.Shell" #>
+<#@ assembly name="Microsoft.VisualStudio.Shell.Interop" #>
+<#@ assembly name="Microsoft.VisualStudio.Shell.Interop.8.0" #>
+<#@ import namespace="CoffeeSharp" #>
+<#@ import namespace="dotless.Core" #>
+<#@ import namespace="dotless.Core.configuration" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="Microsoft.Ajax.Utilities" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="Microsoft.VisualStudio.Shell" #>
+<#@ import namespace="Microsoft.VisualStudio.Shell.Interop" #>
+<#@ import namespace="Microsoft.VisualStudio.TextTemplating" #>
+
+<#+
+
+
+void Process(string outputFile, bool minify,params string [] patterns){
+        Process(outputFile,minify,patterns,new String[0]);
+}
+
+void Process(string outputFile, bool minify, string [] patterns, string [] excludedPatterns){
+
+    List<string> fileRegistry = new List<string>(); 
+
+    var currentDirectory = Path.GetDirectoryName(Host.TemplateFile);
+	string outputFilePath = Path.Combine(currentDirectory, outputFile);
+	
+    // inclusions
+    foreach(var input in patterns){
+        var files = Directory.GetFiles(currentDirectory, input).OrderBy(name => name);
+        
+        foreach(var file in files){
+            if (!fileRegistry.Contains(file)){
+                fileRegistry.Add(file);
+            } 
+        }
+    }
+
+	
+	
+    // exclusions 
+    foreach(var input in excludedPatterns){
+        var files = Directory.GetFiles(currentDirectory, input);
+        foreach(var file in files){
+            if (fileRegistry.Contains(file)){
+                fileRegistry.Remove(file);
+            } 
+        }
+    }
+
+    // exclude output file 
+    if (fileRegistry.Contains(outputFilePath)) fileRegistry.Remove(outputFilePath);
+
+    var buffer = new StringBuilder();
+    if (outputFile.ToLower().EndsWith(".js")){
+        var engine = new CoffeeSharp.CoffeeScriptEngine();
+        foreach(string file in fileRegistry) 
+        {
+            var fileName = Path.GetFileName(file);
+
+            try{
+                buffer.AppendLine("/* " + fileName + "  */");
+                var contents = File.ReadAllText(file);
+                if (file.EndsWith("coffee")) contents = engine.Compile(contents);
+                if(minify) {
+                    var minifier = new Minifier();
+                    var settings = new CodeSettings{
+                            MinifyCode = true,
+                            MacSafariQuirks = true,
+                            };
+                    contents = minifier.MinifyJavaScript(contents,settings);
+                    if(minifier.Errors.Count > 0) throw new Exception(minifier.Errors.First());
+                }
+
+                buffer.AppendLine(contents);
+            } catch(Exception ex){
+                throw new Exception(fileName + ": " + ex.Message,ex);
+            }
+
+        }
+    } else {
+		var configuration = new DotlessConfiguration();
+		//configuration.MinifyOutput = _minify;
+
+		foreach(string file in fileRegistry) 
+		{
+		    var fileName = Path.GetFileName(file);
+
+		    try{
+		        buffer.AppendLine("/* " + fileName + "  */");
+		        var contents = File.ReadAllText(file);
+		        if (file.Contains(".less")) contents = Less.Parse(contents,configuration);
+		        if(minify) {
+		            var minifier = new Minifier();
+		            var settings = new CssSettings{
+		            };
+		            contents = minifier.MinifyStyleSheet(contents,settings);
+		            if(minifier.Errors.Count > 0) throw new Exception(minifier.Errors.First());
+		        }
+		        buffer.AppendLine(contents);
+		     } catch(Exception ex){
+		        throw new Exception(fileName + ": " + ex.Message,ex);
+		    }
+		}
+    }
+    
+    var output = buffer.ToString();
+
+    Write("/*\n");
+    foreach(string file in fileRegistry) Write(Path.GetFileName(file) + "\n");
+    Write("*/\n");
+
+    Write(output);
+    
+    
+    File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+
+    this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+
+	MarkFile(outputFilePath);
+
+}
+
+
+
+  
+
+
+List<string> __savedOutputs = new List<string>();
+
+
+  void DeleteOldOutputs()
+  {
+      ProjectItem templateProjectItem = __getTemplateProjectItem();
+      foreach (ProjectItem childProjectItem in templateProjectItem.ProjectItems)
+      {
+          if (!__savedOutputs.Contains(childProjectItem.Name))
+              childProjectItem.Delete();
+      }
+  }  
+
+  void MarkFile(string outputFilePath)
+  {
+	
+      ProjectItem templateProjectItem = __getTemplateProjectItem();
+      templateProjectItem.ProjectItems.AddFromFile(outputFilePath);  
+      __savedOutputs.Add(Path.GetFileName(outputFilePath));
+      
+  }  
+
+  void SaveOutput(string outputFileName)
+  {
+      string templateDirectory = Path.GetDirectoryName(Host.TemplateFile);
+      string outputFilePath = Path.Combine(templateDirectory, outputFileName);  
+
+      File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString());
+      this.GenerationEnvironment = new StringBuilder();  
+
+      ProjectItem templateProjectItem = __getTemplateProjectItem();
+      templateProjectItem.ProjectItems.AddFromFile(outputFilePath);  
+
+      __savedOutputs.Add(outputFileName);
+  }
+
+
+ EnvDTE.ProjectItem __getTemplateProjectItem()
+    {
+        EnvDTE.Project dteProject = __getTemplateProject();
+
+        IVsProject vsProject = __dteProjectToVsProject(dteProject);
+
+        int iFound = 0;
+        uint itemId = 0;
+        VSDOCUMENTPRIORITY[] pdwPriority = new VSDOCUMENTPRIORITY[1];
+        int result = vsProject.IsDocumentInProject(Host.TemplateFile, out iFound, pdwPriority, out itemId);
+        if (result != VSConstants.S_OK)
+            throw new Exception("Unexpected error calling IVsProject.IsDocumentInProject");
+        if (iFound == 0)
+            throw new Exception("Cannot retrieve ProjectItem for template file");
+        if (itemId == 0)
+            throw new Exception("Cannot retrieve ProjectItem for template file");
+
+        Microsoft.VisualStudio.OLE.Interop.IServiceProvider itemContext = null;
+        result = vsProject.GetItemContext(itemId, out itemContext);
+        if (result != VSConstants.S_OK)
+            throw new Exception("Unexpected error calling IVsProject.GetItemContext");
+        if (itemContext == null)
+            throw new Exception("IVsProject.GetItemContext returned null");
+    
+        ServiceProvider itemContextService = new ServiceProvider(itemContext);
+        EnvDTE.ProjectItem templateItem = (EnvDTE.ProjectItem)itemContextService.GetService(typeof(EnvDTE.ProjectItem));
+        Debug.Assert(templateItem != null, "itemContextService.GetService returned null");
+
+        return templateItem;
+    }
+
+    EnvDTE.Project __getTemplateProject()
+    {
+        IServiceProvider hostServiceProvider = (IServiceProvider)Host;
+        if (hostServiceProvider == null)
+            throw new Exception("Host property returned unexpected value (null)");
+
+        EnvDTE.DTE dte = (EnvDTE.DTE)hostServiceProvider.GetService(typeof(EnvDTE.DTE));
+        if (dte == null)
+            throw new Exception("Unable to retrieve EnvDTE.DTE");
+
+        Array activeSolutionProjects = (Array)dte.ActiveSolutionProjects;
+        if (activeSolutionProjects == null)
+            throw new Exception("DTE.ActiveSolutionProjects returned null");
+
+        EnvDTE.Project dteProject = (EnvDTE.Project)activeSolutionProjects.GetValue(0);
+        if (dteProject == null)
+            throw new Exception("DTE.ActiveSolutionProjects[0] returned null");
+
+        return dteProject;
+    }
+
+    static IVsProject __dteProjectToVsProject(EnvDTE.Project project)
+    {
+        if (project == null) 
+            throw new ArgumentNullException("project");
+            
+        string projectGuid = null;        
+
+        // DTE does not expose the project GUID that exists at in the msbuild project file.        
+        // Cannot use MSBuild object model because it uses a static instance of the Engine,         
+        // and using the Project will cause it to be unloaded from the engine when the         
+        // GC collects the variable that we declare.       
+        using (XmlReader projectReader = XmlReader.Create(project.FileName))
+        {
+            projectReader.MoveToContent();
+            object nodeName = projectReader.NameTable.Add("ProjectGuid");
+            while (projectReader.Read())
+            {
+                if (Object.Equals(projectReader.LocalName, nodeName))
+                {
+                    projectGuid = (string)projectReader.ReadElementContentAsString(); 
+                    break;
+                }
+            }
+        }
+        if (string.IsNullOrEmpty(projectGuid))
+            throw new Exception("Unable to find ProjectGuid element in the project file");
+
+        Microsoft.VisualStudio.OLE.Interop.IServiceProvider dteServiceProvider = 
+            (Microsoft.VisualStudio.OLE.Interop.IServiceProvider)project.DTE;
+        IServiceProvider serviceProvider = new ServiceProvider(dteServiceProvider); 
+        IVsHierarchy vsHierarchy = VsShellUtilities.GetHierarchy(serviceProvider, new Guid(projectGuid));
+            
+        IVsProject vsProject = (IVsProject)vsHierarchy;
+        if (vsProject == null)
+            throw new ArgumentException("Project is not a VS project.");
+        return vsProject;
+    }
+
+
+/*
+    This MarkDirty code is based on T4MVC by David Ebbo. Concept explained here:
+ http://blogs.msdn.com/davidebb/archive/2009/06/26/the-mvc-t4-template-is-now-up-on-codeplex-and-it-does-change-your-code-a-bit.aspx
+*/
+void MarkDirty() {
+    // Get the DTE service from the host
+    var serviceProvider = Host as IServiceProvider;
+	EnvDTE.DTE dte;
+    if (serviceProvider == null)
+        return;
+
+	dte = serviceProvider.GetService(typeof(SDTE)) as DTE;
+
+    // Find the .tt file's ProjectItem
+    ProjectItem projectItem = dte.Solution.FindProjectItem(Host.TemplateFile);
+
+    // If the .tt file is not opened, open it
+    if (projectItem.Document == null)
+        projectItem.Open(EnvDTE.Constants.vsViewKindCode);
+
+    // Mark the .tt file as unsaved. This way it will be saved and update itself next time the
+    // project is built. Basically, it keeps marking itself as unsaved to make the next build work.
+    // Note: this is certainly hacky, but is the best I could come up with so far.
+    projectItem.Document.Saved = false;
+}
+
+#>

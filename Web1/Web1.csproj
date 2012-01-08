@@ -69,18 +69,26 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\coffee\coffee1.js">
+    <Content Include="Content\coffee\coffee.js">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>coffee.t4</DependentUpon>
     </Content>
     <Content Include="Content\coffee\Three.js" />
     <Content Include="Content\coffee\two.js" />
-    <Content Include="Content\less\two.css" />
-    <Content Include="Content\less\less1.css">
-      <DependentUpon>less.t4</DependentUpon>
-      <DesignTime>True</DesignTime>
+    <Content Include="Content\less\less.css">
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>less.t4</DependentUpon>
+    </Content>
+    <Content Include="Content\less\two.css" />
+    <Content Include="Content\single\one.css" />
+    <Content Include="Content\single\one.js" />
+    <Content Include="Content\single\script.js">
+      <DependentUpon>generator.t4</DependentUpon>
+    </Content>
+    <Content Include="Content\single\style.css">
+      <DependentUpon>generator.t4</DependentUpon>
     </Content>
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -167,12 +175,25 @@
     <None Include="Content\coffee\js2.coffee" />
     <None Include="Content\coffee\js1.coffee" />
     <Content Include="Content\less\one.css" />
+    <Content Include="Content\less\variables.less.css" />
     <None Include="Content\less\nested.less" />
     <None Include="Content\less\mixin.less" />
     <None Include="Content\less\less.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>less.css</LastGenOutput>
     </None>
+    <None Include="Content\single\generator.log">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>generator.t4</DependentUpon>
+    </None>
+    <None Include="Content\single\generator.t4">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>generator.log</LastGenOutput>
+    </None>
+    <None Include="Content\single\js1.coffee" />
+    <None Include="Content\single\js2.coffee" />
+    <None Include="Content\single\nested.less" />
     <None Include="Scripts\style.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>style.js</LastGenOutput>
