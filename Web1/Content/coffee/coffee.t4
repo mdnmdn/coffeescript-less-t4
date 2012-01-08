@@ -7,11 +7,12 @@
 <#@ import namespace="System" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="Microsoft.Ajax.Utilities" #>
 <#
 
-var minify= true;
+var minify = false;
 
 var inputs = new String[] {
 // write here the list of file to process
@@ -25,7 +26,6 @@ var inputs = new String[] {
 
 var excludes = new String[] {
 // write here the list of file to process
-    "coffee.js"
 };
 
 List<string> fileRegistry = new List<string>(); 
@@ -53,27 +53,39 @@ foreach(var input in excludes){
     }
 }
 
+// exclude default output file 
+var defaultOutput = GetDefaultOutputFile("js");
+if (fileRegistry.Contains(defaultOutput)) fileRegistry.Remove(defaultOutput);
+
 
 var engine = new CoffeeSharp.CoffeeScriptEngine();
 var buffer = new StringBuilder();
 foreach(string file in fileRegistry) 
 {
-    buffer.AppendLine("/* " + Path.GetFileName(file) + "  */");
-    var contents = File.ReadAllText(file);
-    if (file.EndsWith("coffee")) contents = engine.Compile(contents);
-    buffer.AppendLine(contents);
+    var fileName = Path.GetFileName(file);
+
+    try{
+        buffer.AppendLine("/* " + fileName + "  */");
+        var contents = File.ReadAllText(file);
+        if (file.EndsWith("coffee")) contents = engine.Compile(contents);
+        if(minify) {
+             var minifier = new Minifier();
+             var settings = new CodeSettings{
+                MinifyCode = true,
+                MacSafariQuirks = true,
+            };
+            contents = minifier.MinifyJavaScript(contents,settings);
+            if(minifier.Errors.Count > 0) throw new Exception(minifier.Errors.First());
+        }
+
+        buffer.AppendLine(contents);
+    } catch(Exception ex){
+        throw new Exception(fileName + ": " + ex.Message,ex);
+    }
+
 }
 
 var js = buffer.ToString();
-
-if(minify){
-    var minifier = new Minifier();
-    var settings = new CodeSettings{
-        MinifyCode = true,
-        MacSafariQuirks = true,
-    };
-    js = minifier.MinifyJavaScript(js,settings);
-} 
 
 Write("/*\n");
 foreach(string file in fileRegistry) Write(Path.GetFileName(file) + "\n");
@@ -116,6 +128,11 @@ void MarkDirty() {
     // project is built. Basically, it keeps marking itself as unsaved to make the next build work.
     // Note: this is certainly hacky, but is the best I could come up with so far.
     projectItem.Document.Saved = false;
+}
+
+
+string GetDefaultOutputFile(string extension){
+    return Path.ChangeExtension(Path.GetFileName(Host.TemplateFile),extension);
 }
 
 #>

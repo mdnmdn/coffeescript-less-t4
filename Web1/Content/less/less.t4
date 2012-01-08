@@ -6,12 +6,13 @@
 <#@ import namespace="dotless.Core" #>
 <#@ import namespace="dotless.Core.configuration" #>
 <#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="Microsoft.Ajax.Utilities" #>
 <#
 
-var minify= false;
+var minify= true;
 
 var inputs = new String[] {
 // write here the list of file to process
@@ -20,7 +21,7 @@ var inputs = new String[] {
 
 var excludes = new String[] {
 // write here the list of file to process
-    "less.css"
+    
 };
 
 List<string> fileRegistry = new List<string>();
@@ -48,35 +49,44 @@ foreach(var input in excludes){
     }
 }
 
+var defaultOutput = GetDefaultOutputFile("css");
+if (fileRegistry.Contains(defaultOutput)) fileRegistry.Remove(defaultOutput);
+        
+
 var buffer = new StringBuilder();
 var configuration = new DotlessConfiguration();
 //configuration.MinifyOutput = _minify;
+
 foreach(string file in fileRegistry) 
 {
-        buffer.AppendLine("/* " + Path.GetFileName(file) + "  */");
+    var fileName = Path.GetFileName(file);
+
+    try{
+        buffer.AppendLine("/* " + fileName + "  */");
         var contents = File.ReadAllText(file);
         if (file.Contains(".less")) contents = Less.Parse(contents,configuration);
+        if(minify) {
+            var minifier = new Minifier();
+            var settings = new CssSettings{
+            };
+            contents = minifier.MinifyStyleSheet(contents,settings);
+            if(minifier.Errors.Count > 0) throw new Exception(minifier.Errors.First());
+        }
         buffer.AppendLine(contents);
+     } catch(Exception ex){
+        throw new Exception(fileName + ": " + ex.Message,ex);
+    }
 }
 
-var css = buffer.ToString();
-
-if(minify){
-    var minifier = new Minifier();
-    var settings = new CssSettings{
-    };
-    css = minifier.MinifyStyleSheet(css,settings);
-} 
 
 Write("/*\n");
 foreach(string file in fileRegistry) Write(Path.GetFileName(file) + "\n");
 Write("*/\n");
-Write(css);
+Write(buffer.ToString());
 
 
 MarkDirty();
 #>
-
 <#@ assembly name="Microsoft.VisualStudio.Shell.Interop.8.0" #>
 <#@ assembly name="EnvDTE" #>
 <#@ assembly name="EnvDTE80" #>
@@ -84,7 +94,6 @@ MarkDirty();
 <#@ import namespace="EnvDTE" #>
 <#@ import namespace="EnvDTE80" #>
 <#+
-
 /*
     This MarkDirty code is based on T4MVC by David Ebbo. Concept explained here: http://blogs.msdn.com/davidebb/archive/2009/06/26/the-mvc-t4-template-is-now-up-on-codeplex-and-it-does-change-your-code-a-bit.aspx
 */
@@ -108,6 +117,10 @@ void MarkDirty() {
     // project is built. Basically, it keeps marking itself as unsaved to make the next build work.
     // Note: this is certainly hacky, but is the best I could come up with so far.
     projectItem.Document.Saved = false;
+}
+
+string GetDefaultOutputFile(string extension){
+        return Path.ChangeExtension(Path.GetFileName(Host.TemplateFile),extension);
 }
 
 #>

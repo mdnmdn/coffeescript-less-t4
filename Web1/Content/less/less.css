@@ -1,55 +1,20 @@
 ﻿/*
 mixin.less
 nested.less
+less.css
 one.css
 two.css
 variables.less.css
 */
 /* mixin.less  */
-.rounded_corners {
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  border-radius: 8px;
-  color: blue;
-}
-#header {
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  border-radius: 8px;
-  color: blue;
-}
-#footer {
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  border-radius: 8px;
-  color: blue;
-}
-
+.rounded_corners{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#footer{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}
 /* nested.less  */
-#header {
-  color: red;
-}
-#header a {
-  font-weight: bold;
-  text-decoration: none;
-}
-
+#header{color:red}#header a{font-weight:bold;text-decoration:none}#header p{font-size:20px}
+/* less.css  */
+.rounded_corners{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#footer{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{color:red}#header a{font-weight:bold;text-decoration:none}#header p{font-size:20px}.rounded_corners{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#footer{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{color:red}#header a{font-weight:bold;text-decoration:none}#header p{font-size:20px}.rounded_corners{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#footer{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{color:red}#header a{font-weight:bold;text-decoration:none}#header p{font-size:20px}.rounded_corners{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#footer{-moz-border-radius:8px;-webkit-border-radius:8px;border-radius:8px;color:blue}#header{color:red}#header a{font-weight:bold;text-decoration:none}#header p{font-size:20px}.css-one{color:blue}.css-two{color:#456}#header{color:#4d926f}h2{color:#4d926f}.css-one{color:blue}.css-two{color:#456}#header{color:#4d926f}h2{color:#4d926f}.css-one{color:blue}.css-two{color:#456}#header{color:#4d926f}h2{color:#4d926f}.css-one{color:blue}.css-two{color:#456}#header{color:#4d926f}h2{color:#4d926f}
 /* one.css  */
-.css-one {
-  color: blue;
-}
- 
+.css-one{color:blue}
 /* two.css  */
-.css-two {
-  color: #445566;
-}
- 
+.css-two{color:#456}
 /* variables.less.css  */
-#header {
-  color: #4d926f;
-}
-h2 {
-  color: #4d926f;
-}
-
-
+#header{color:#4d926f}h2{color:#4d926f}
